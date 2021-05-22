@@ -1,5 +1,4 @@
 library(shiny)
-library(plotly)
 
 ##########################################
 # Data loading
@@ -50,11 +49,11 @@ server <- function(session, input, output) {
     } else {
       selec_mn <- '6'
     }
-    aux <- datos_fake[datos_fake$day==selec_day, ]
-    aux <- datos_fake[datos_fake$hour==selec_hr, ]
-    aux <- datos_fake[datos_fake$min_group==selec_mn, ]
+    aux <- datos[datos$day==selec_day, ]
+    aux <- datos[datos$hour==selec_hr, ]
+    aux <- datos[datos$min_group==selec_mn, ]
     
-    estaciones$predic <- t(datos_fake[1,c(4:145)])
+    estaciones$predic <- t(datos[1,c(4:145)])
     
     leaflet() %>%
       addProviderTiles(providers$Stamen.TonerLite,

@@ -2,7 +2,6 @@
 library(shiny)
 library(shinydashboard)
 library(shinythemes)
-library(plotly)
 library (leaflet)
 library(shinyTime)
 
