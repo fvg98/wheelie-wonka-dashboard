@@ -5,7 +5,7 @@ library(shiny)
 load('dashPredicts.RData')
 colnames(datos)[c(2,3,8)] <- c('day','hour','min_group')
 colnames(datos)[c(4:7)] <- c('real','rf','lasso','xgb')
-datos[, c(4:7)] <- trunc(datos[, c(4:7)]*10000)/10000
+datos[, c(4:7)] <- round(datos[, c(4:7)])
 datos$hour <- as.integer(datos$hour)
 datos$min_group <- as.integer(datos$min_group)
 #datos <- read.csv("datos_fake.csv") # Para pruebas
@@ -80,8 +80,8 @@ server <- function(session, input, output) {
                    "<b>Terminal: </b>",estaciones$terminal,"<br>",
                    "<b>Estatus: </b>",estaciones$status,"<br>",
                    "<b>Promedio real: </b>",estaciones$real,"<br>",
-                   "<b>Predicción XGB:</b>",estaciones$xgb,"<br>",
-                   "<b>Predicción Random Forest:</b>",estaciones$rf,"<br>",
+                   "<b>Predicción XGB: </b>",estaciones$xgb,"<br>",
+                   "<b>Predicción Random Forest: </b>",estaciones$rf,"<br>",
                    "<b>Predicción Lasso: </b>",estaciones$lasso, 
                    sep=""),
                  icon = bikeIcon
@@ -91,7 +91,7 @@ server <- function(session, input, output) {
   ###########################################
   # Botones
   observeEvent(input$current_time, {
-    updateTimeInput(session, "time_input", value = Sys.time())
+    updateTimeInput(session, "time_input", value = (Sys.time()-5*3600))
   })
   
   observeEvent(input$current_date, {
