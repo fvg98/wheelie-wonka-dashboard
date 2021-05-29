@@ -98,5 +98,21 @@ server <- function(session, input, output) {
     updateDateInput(session, "date_input", value = Sys.time())
   })
   
+  ###########################################
+  # Texto
+  output$notas_notasMet <- renderText({paste( "<h4><b>Sobre los datos mostrados:</b></h4>",
+                                                   
+                                              "<li> Se muestran todas las estaciones disponibles, incluyendo abiertas y cerradas. El status de estas puede conocerse al hacer click sobre la estación, lo que muestra información detallada relevante.",
+                                              "",
+                                                   
+                                              "<li> La información detallada reporta las predicciones de distintos modelos para los flujos acumulados de viajes entrantes hasta la hora seleccionada. Esto se hace de este modo porque no se conoce la distribución inicial de las bicicletas. Sin embargo, si estos valores pudieran observarse para cada inicio del día, no sería complicado reajustar el resultado para mostrar la predicción no del flujo, sino del total de bicicletas disponibles.",
+                                              "",
+                                                   
+                                              "<li> Asimismo, la variable de promedio real reporta el promedio de flujos acumulados de viajes entrantes hasta la hora del día seleccionada para las observaciones históricas. Es decir, reporta el promedio en cada estación para el mismo día de la semana e intervalo de tiempo que seleccinó el usuario (redondeado)." ,
+                                              "",
+                                                   
+                                              "<li> El valor que se muestra al poner el mouse encima de cada estación es la predicción del modelo de XGBoost." ,
+                                              sep = "<br/>")})
+  
 }
 

@@ -18,7 +18,7 @@ navbarPage(theme = shinytheme("united"),id = "navibar",
            windowTitle = HTML("Wheelie Wonka"),
            ###################################################
            # Panel: Mapa
-           tabPanel("Mapa interactivo", 
+           tabPanel("Mapa Interactivo", 
                     titlePanel(div(
                       windowTitle = "Landing page",
                       htmlOutput("header_1"))),
@@ -53,6 +53,19 @@ navbarPage(theme = shinytheme("united"),id = "navibar",
                         )
                       )
                     ),
+           ###################################################
+           # Panel: Bases de datos
+           tabPanel("Notas Metodológicas",titlePanel(div(windowTitle = "Landing page",
+                                                    HTML('<center>Notas Metodológicas</center>'),
+                                                    htmlOutput("header_2"))),tags$br(),
+                    fluidPage(
+                      fluidRow(
+                        column(12, htmlOutput("notas_notasMet")
+                        )
+                      )
+                    )
+           ),
+           ###################################################
            navbarMenu("Contacto",
                       tabPanel(title=HTML("</a></li><li><a href='https://github.com/marcoyel21/economia_computacional' target='_blank'>Repositorio en GitHub")),        
                       tabPanel(title=HTML("</a></li><li><a href='https://github.com/marcoyel21/economia_computacional' target='_blank'>Correo"))
