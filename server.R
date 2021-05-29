@@ -2,8 +2,15 @@ library(shiny)
 
 ##########################################
 # Data loading
-datos <- read.csv("datos_fake.csv")
+load('dashPredicts.RData')
+colnames(datos)[c(2,3,8)] <- c('day','hour','min_group')
+colnames(datos)[c(4:7)] <- c('real','rf','lasso','xgb')
+datos[, c(4:7)] <- trunc(datos[, c(4:7)]*10000)/10000
+datos$hour <- as.integer(datos$hour)
+datos$min_group <- as.integer(datos$min_group)
+#datos <- read.csv("datos_fake.csv") # Para pruebas
 estaciones <- read.csv("hubway_stations.csv")
+estaciones <- estaciones[estaciones$id!=44, ] # Sin predicciones posibles
 colnames(estaciones)[6] <- 'long'
 
 ##########################################
@@ -22,38 +29,43 @@ server <- function(session, input, output) {
   ###########################################
   # Mapa
   
+  # Íconos
   bikeIcon <- makeIcon(
     iconUrl = "https://upload.wikimedia.org/wikipedia/commons/5/55/BicycleMarkerSymbol.png",
     iconWidth = 31.5, iconHeight = 49.6, # original: 315*496
     iconAnchorX = 20, iconAnchorY = 50
   )
-  
+  # Render
   output$bikemap <- renderLeaflet({
     selec_day <- weekdays(input$date_input)
     #selec_hr <- format(strptime(input$time_input,"%H:%M:%S"),'%H')
     #selec_mn <- as.integer(format(strptime(input$time_input,"%H:%M:%S"),'%M'))
     #output$time_output <- renderText(strftime(input$time_input, "%M"))
     
-    selec_hr <- strftime(input$time_input, "%H")
+    selec_hr <- as.integer(strftime(input$time_input, "%H"))
     selec_mn <- as.integer(strftime(input$time_input, "%M"))
-    if (selec_mn <= 10) {
+    if (selec_mn < 10) {
       selec_mn <- '1'
-    } else if (selec_mn <= 20) {
+    } else if (selec_mn < 20) {
       selec_mn <- '2'
-    } else if (selec_mn <= 30) {
+    } else if (selec_mn < 30) {
       selec_mn <- '3'
-    } else if (selec_mn <= 40) {
+    } else if (selec_mn < 40) {
       selec_mn <- '4'
-    } else if (selec_mn <= 50) {
+    } else if (selec_mn < 50) {
       selec_mn <- '5'
     } else {
       selec_mn <- '6'
     }
     aux <- datos[datos$day==selec_day, ]
-    aux <- datos[datos$hour==selec_hr, ]
-    aux <- datos[datos$min_group==selec_mn, ]
+    aux <- aux[aux$hour==selec_hr, ]
+    aux <- aux[aux$min_group==selec_mn, ]
+    aux <- aux[order(aux$id),]
     
-    estaciones$predic <- t(datos[1,c(4:145)])
+    estaciones <- merge(estaciones, aux[, c(1, 4:7)], by = 'id')
+    estaciones[,c(8:11)] <- ifelse(estaciones[,7]=="Removed",0, estaciones[,c(8:11)])
+    # a partir de 7 empieza lo merged
+    # estaciones$predic <- aux$
     
     leaflet() %>%
       addProviderTiles(providers$Stamen.TonerLite,
@@ -61,13 +73,16 @@ server <- function(session, input, output) {
                        ) %>%
       addMarkers(data = estaciones, 
                  clusterOptions = markerClusterOptions(),
-                 label = ~as.character(predic),
+                 label = ~as.character(xgb),
                  popup = paste(
                    "<b>",estaciones$municipal,", MA","</b>","<br>",
                    "<b>Estación: </b>",estaciones$station,"<br>",
                    "<b>Terminal: </b>",estaciones$terminal,"<br>",
                    "<b>Estatus: </b>",estaciones$status,"<br>",
-                   "<b>Bicicletas disponibles: </b>",estaciones$predic, 
+                   "<b>Promedio real: </b>",estaciones$real,"<br>",
+                   "<b>Predicción XGB:</b>",estaciones$xgb,"<br>",
+                   "<b>Predicción Random Forest:</b>",estaciones$rf,"<br>",
+                   "<b>Predicción Lasso: </b>",estaciones$lasso, 
                    sep=""),
                  icon = bikeIcon
                  )
